@@ -24,6 +24,7 @@ Load these files before drafting the plan:
 - `references/plan-template.md`
 - `references/quality-rules.md`
 - `references/repository-contract.md`
+- `references/architecture-principles.md`
 
 Use `scripts/validate_plan_markdown.py` before returning the plan artifact.
 
@@ -56,7 +57,19 @@ For every area that matters, capture:
 - why the area is involved
 - whether it must be created, modified, extended, or validated only
 
-### 3. Resolve Repository Identity And Publication Paths
+### 3. Analyze Codebase Architecture
+
+Before structuring any workstream or implementation task, complete the phased architecture analysis defined in `references/architecture-principles.md`.
+
+**Phase 1 — Read architectural documentation.** Search for and read all architecture docs, decision records, contributing guides, style guides, and agent instruction files in the repository. When documentation exists, treat it as authoritative for the plan.
+
+**Phase 2 — Decompose the codebase into architectural components.** Identify layering, module boundaries, cross-cutting patterns (auth, HTTP clients, logging, error handling, config, caching, retries), shared abstractions, data flow conventions, and test organization. For each pattern, capture the exact files and symbols that implement it. When the codebase already handles a concern in a standard way, the plan must reuse that approach — do not invent new patterns for solved problems.
+
+**Phase 3 — Apply default principles when needed.** When the codebase lacks documentation and clear conventions, or when the feature introduces a genuinely new concern, apply the default architecture principles: readability and maintainability first, idempotent execution, DRY/SOLID/abstraction discipline, and composable primitives design. Build generalized concepts as standalone reusable primitives before layering feature-specific behavior on top.
+
+Capture the results of this analysis for use in the Verified System Context section and in every workstream.
+
+### 4. Resolve Repository Identity And Publication Paths
 
 Resolve the active repository context before writing the plan.
 
@@ -77,27 +90,41 @@ Publish the validated plan to:
 
 - `docs/plans/<feature-slug>/<utc-timestamp>-<feature-slug>-implementation-plan.md`
 
-### 4. Build The Workstream Map
+### 5. Build The Workstream Map
 
 Split the feature into concern-aligned workstreams. Workstreams must reflect real boundaries such as UI, API, backend logic, data contracts, persistence, configuration, observability, deployment, and test coverage.
+
+#### Workstream execution sequence
+
+Before detailing individual workstreams, produce a workstream execution sequence table at the top of the `## Workstream plan` section. The table must:
+
+- List every workstream by number and name.
+- State which other workstream(s) each workstream depends on, or `—` if it has no dependencies.
+- Provide a short rationale for each dependency.
+- Number workstreams in recommended execution order.
+- Declare that independent workstreams with no dependencies may execute in parallel.
+
+When a workstream creates a composable primitive or shared abstraction that other workstreams consume, the primitive workstream must be sequenced first and listed as a dependency.
 
 For every workstream:
 
 - name it precisely
 - state the objective in one direct sentence
 - list exact files to modify and exact files to create
+- state which existing patterns, abstractions, or utilities the implementation must reuse (from the architecture analysis)
+- when a new composable primitive or shared abstraction is required, sequence its creation before the tasks that depend on it
 - include checkbox implementation tasks in execution order
 - include checkbox test tasks tied to real suites or commands
-- include explicit exit criteria
+- include explicit exit criteria that confirm the implementation follows established or documented patterns
 
-### 5. Draft The Plan
+### 6. Draft The Plan
 
 - Use the exact section structure from `references/plan-template.md`.
 - Keep all major headings from the template.
 - Populate each section with concrete repository-aware content.
 - Apply every rule from `references/quality-rules.md`.
 
-### 6. Add Collaboration Paths
+### 7. Add Collaboration Paths
 
 For non-trivial work, plan collaboration notes under the verified repository convention:
 
@@ -108,14 +135,14 @@ For non-trivial work, plan collaboration notes under the verified repository con
 
 Reference those paths directly in the plan where cross-agent coordination is needed.
 
-### 7. Validate The Markdown Artifact
+### 8. Validate The Markdown Artifact
 
 - Save the finished plan as `<feature-slug>-implementation-plan.md` during drafting, then place the final copy under `docs/plans/<feature-slug>/`.
 - Run `python scripts/validate_plan_markdown.py <path-to-markdown-file>`.
 - If validation fails, fix the plan and validate again.
 - Do not return the plan until validation passes.
 
-### 8. Publish The Same Plan To The Current Repository
+### 9. Publish The Same Plan To The Current Repository
 
 After validation, publish the identical markdown content into the currently opened repository.
 
@@ -155,6 +182,7 @@ The final plan must include all of the following:
 - user stories and negative user stories
 - developer stories and negative developer stories
 - segmented workstreams with checkbox subtasks
+- workstream execution sequence table with dependency mapping
 - testing stories that map to unit, integration, regression, and manual verification work
 - manual testing guidance that tells the developer exactly what to test and what areas were impacted
 - repository publication section with the final `docs/plans/...` target path
@@ -169,6 +197,7 @@ Reject and rewrite the plan before returning it if any of the following are true
 - any section asks a question or leaves an open decision
 - any task lacks a concrete file or behavior target
 - any workstream mixes unrelated concerns without clear sequencing
+- the workstream execution sequence table is missing or incomplete
 - any testing section is generic or disconnected from the feature stories
 - any markdown section is malformed
 - any publication path does not target `docs/plans/`

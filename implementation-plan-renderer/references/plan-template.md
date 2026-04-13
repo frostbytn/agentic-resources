@@ -51,6 +51,13 @@ Provide a direct summary of the feature, the implementation intent, the affected
 
 - List exact config files, flags, dependency injection registrations, environment settings, permissions, logging, metrics, alerts, smoke scripts, or deployment surfaces involved.
 
+### Architecture alignment
+
+- List the architectural patterns, layering conventions, and cross-cutting abstractions discovered in the codebase that this plan must follow.
+- List shared utilities, base classes, wrappers, or modules that existing features use and that this plan must reuse.
+- List any architectural documentation files read and the key conventions extracted from them.
+- When no documentation or clear conventions exist, state which default architecture principles apply.
+
 ## Code impact map
 
 ### Existing files to modify
@@ -89,6 +96,15 @@ Provide a direct summary of the feature, the implementation intent, the affected
 
 ## Workstream plan
 
+### Workstream execution sequence
+
+| Order | Workstream | Depends on | Rationale |
+| --- | --- | --- | --- |
+| 1 | Workstream 1: name | — | Why this runs first |
+| 2 | Workstream 2: name | Workstream 1 | Why this depends on Workstream 1 |
+
+Execute workstreams in the order listed above. A workstream must not begin until all workstreams listed in its "Depends on" column are complete. Independent workstreams with no dependencies may execute in parallel.
+
 ### Workstream 1: <replace-with-concrete-workstream-name>
 
 **Objective**
@@ -99,6 +115,11 @@ State the workstream objective.
 
 - `path/to/file.ext` — `SymbolName` — exact reason
 - `path/to/another-file.ext` — `functionName` — exact reason
+
+**Existing patterns and abstractions to reuse**
+
+- Name the existing cross-cutting pattern, shared abstraction, utility, or convention that this workstream must follow.
+- When a new composable primitive must be created, name it here and explain why no existing abstraction covers the need.
 
 **Implementation tasks**
 
